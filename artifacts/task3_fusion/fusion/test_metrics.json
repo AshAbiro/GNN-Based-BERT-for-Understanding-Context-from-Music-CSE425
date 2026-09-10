@@ -1,0 +1,7 @@
+{
+  "loss": 0.6708374738693237,
+  "macro_f1": 0.068485128882536,
+  "micro_f1": 0.2628398791540785,
+  "valence_mse": null,
+  "arousal_mse": null
+}

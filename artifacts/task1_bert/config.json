@@ -1,0 +1,13 @@
+{
+  "data_dir": "artifacts/data",
+  "output_dir": "artifacts/task1_bert",
+  "model_name": "distilbert-base-uncased",
+  "epochs": 8,
+  "batch_size": 16,
+  "learning_rate": 2e-05,
+  "max_length": 128,
+  "threshold": 0.5,
+  "seed": 42,
+  "limit_per_split": null,
+  "no_pos_weight": false
+}

@@ -1,0 +1,23 @@
+{
+  "data_dir": "artifacts/data",
+  "output_dir": "artifacts/task3_fusion",
+  "cache_dir": "cache/graphs",
+  "model_name": "distilbert-base-uncased",
+  "variants": [
+    "fusion",
+    "bert",
+    "gnn",
+    "early"
+  ],
+  "epochs": 4,
+  "batch_size": 8,
+  "learning_rate": 2e-05,
+  "head_learning_rate": 0.001,
+  "max_length": 128,
+  "alpha": 0.2,
+  "beta": 0.2,
+  "threshold": 0.5,
+  "seed": 42,
+  "limit_per_split": null,
+  "no_pos_weight": false
+}

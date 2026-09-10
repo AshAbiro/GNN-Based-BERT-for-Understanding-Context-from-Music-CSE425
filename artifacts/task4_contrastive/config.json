@@ -1,0 +1,14 @@
+{
+  "data_dir": "artifacts/data",
+  "output_dir": "artifacts/task4_contrastive",
+  "cache_dir": "cache/graphs",
+  "model_name": "distilbert-base-uncased",
+  "embedding_dim": 256,
+  "epochs": 20,
+  "batch_size": 32,
+  "learning_rate": 2e-05,
+  "head_learning_rate": 0.001,
+  "max_length": 128,
+  "seed": 42,
+  "limit_per_split": null
+}

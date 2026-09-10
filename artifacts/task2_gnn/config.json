@@ -1,0 +1,12 @@
+{
+  "data_dir": "artifacts/data",
+  "output_dir": "artifacts/task2_gnn",
+  "cache_dir": "cache/graphs",
+  "epochs": 30,
+  "batch_size": 16,
+  "learning_rate": 0.001,
+  "threshold": 0.5,
+  "seed": 42,
+  "limit_per_split": null,
+  "no_pos_weight": false
+}

@@ -1,0 +1,15 @@
+{
+  "target_source": "audioset",
+  "min_frequency": 5,
+  "seed": 42,
+  "val_fraction": 0.15,
+  "test_fraction": 0.15,
+  "split_method": "iterative-multilabel-local",
+  "rows": 760,
+  "labels": 124,
+  "split_counts": {
+    "train": 532,
+    "val": 114,
+    "test": 114
+  }
+}
