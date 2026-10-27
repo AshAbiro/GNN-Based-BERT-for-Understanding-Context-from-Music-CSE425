@@ -27,12 +27,11 @@ pip install -r requirements.txt
 
 ## Data
 
-Training datasets, downloaded audio, processed features, and model checkpoints
-are excluded from this repository. Obtain the LP-MusicCaps-MTT metadata
-(captions, MagnaTagATune tags, and paths) separately and place it under
-`data/lp_musiccaps/`; see the [dataset card](data/lp_musiccaps/README.md) for
-the upstream source. The experiment files and split-generation details are
-documented in `report/DECISIONS.md`.
+The LP-MusicCaps-MTT metadata and local MagnaTagATune audio used for this
+project are included under `data/`, along with processed features and model
+checkpoints. See the [dataset card](data/lp_musiccaps/README.md) for dataset
+details and `report/DECISIONS.md` for the experiment files and split
+generation details.
 
 To download the audio needed for Tasks 2-4:
 
@@ -67,7 +66,10 @@ Already compiled: `report/final_report.pdf`.
 
 ```
 gnn-bert-music-context/
-  data/                     # local datasets and audio; excluded from Git
+  data/
+    lp_musiccaps/             # LP-MusicCaps-MTT metadata
+    raw/audio/                # downloaded MagnaTagATune audio
+    processed/                # cached audio features
   src/
     config.py                # central config (dataclasses) + config.yaml loader
     captions_data.py          # PRIMARY: LP-MusicCaps-MTT loader (real, tested)
@@ -89,7 +91,7 @@ gnn-bert-music-context/
   tests/                                   # 30 passing model/data/audio/integration tests
   results/
     *.json, *.png                           # metrics, histories, and figures
-    *.pt                                    # local checkpoints; excluded from Git
+    *.pt                                    # model checkpoints
   report/
     final_report.tex, final_report.pdf, neurips_2026.sty, references.bib
     DECISIONS.md                            # what's real vs. simulated, and why -- read this first

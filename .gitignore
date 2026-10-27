@@ -1,17 +1,7 @@
-.tools/
 .pytest_cache/
 .tmp_report_pages/
 __pycache__/
 *.py[cod]
-
-/data/*
-!/data/lp_musiccaps/
-/data/lp_musiccaps/*
-!/data/lp_musiccaps/README.md
-/results/*.pt
-/results/**/*.pt
-*.pth
-*.ckpt
 
 /report/*.aux
 /report/*.bbl
