@@ -1,0 +1,42 @@
+{
+  "bert_only": [
+    {
+      "epoch": 0,
+      "train_loss": 0.7039039134979248,
+      "macro_f1": 0.0192014652014652,
+      "micro_f1": 0.057692307692307696,
+      "mean_average_precision": 0.27552158489658485,
+      "mean_auc_pr": 0.27552158489658485
+    }
+  ],
+  "gnn_only": [
+    {
+      "epoch": 0,
+      "train_loss": 2.2140185832977295,
+      "macro_f1": 0.03630769230769231,
+      "micro_f1": 0.1262135922330097,
+      "mean_average_precision": 0.2608154962321629,
+      "mean_auc_pr": 0.2608154962321629
+    }
+  ],
+  "early_concat": [
+    {
+      "epoch": 0,
+      "train_loss": 1.092794418334961,
+      "macro_f1": 0.03802197802197802,
+      "micro_f1": 0.12017167381974249,
+      "mean_average_precision": 0.2615299823633157,
+      "mean_auc_pr": 0.2615299823633157
+    }
+  ],
+  "cross_attention": [
+    {
+      "epoch": 0,
+      "train_loss": 2.163628101348877,
+      "macro_f1": 0.023736263736263738,
+      "micro_f1": 0.06557377049180328,
+      "mean_average_precision": 0.27448793490460155,
+      "mean_auc_pr": 0.27448793490460155
+    }
+  ]
+}

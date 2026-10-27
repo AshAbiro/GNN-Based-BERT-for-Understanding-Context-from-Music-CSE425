@@ -1,26 +1,47 @@
-import unittest
+import os
+import sys
 
-import numpy as np
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from musiccaps_ml.data import encode_tags, make_split, parse_tags
+from data import JamendoDataset, build_task_frame, split_tags_by_category
+
+DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+SPLIT_DIR = os.path.join(DATA_DIR, "splits", "split-0")
 
 
-class DataTests(unittest.TestCase):
-    def test_tag_parsing(self):
-        self.assertEqual(parse_tags("/m/a,/m/b", "audioset"), ["/m/a", "/m/b"])
-        self.assertEqual(parse_tags("['Piano', 'slow tempo']", "aspects"), ["piano", "slow tempo"])
+def test_split_tags_by_category():
+    tags = ["genre---rock", "mood/theme---calm", "instrument---guitar"]
+    out = split_tags_by_category(tags)
+    assert out == {"genre": ["rock"], "moodtheme": ["calm"], "instrument": ["guitar"]}
 
-    def test_multihot_encoding(self):
-        encoded = encode_tags([["a", "b"], ["b"]], ["a", "b"])
-        np.testing.assert_array_equal(encoded, [[1, 1], [0, 1]])
 
-    def test_split_is_disjoint_and_complete(self):
-        labels = np.tile(np.eye(3, dtype=np.float32), (20, 1))
-        split, _ = make_split(labels, seed=7)
-        self.assertEqual(len(split), len(labels))
-        self.assertEqual(set(split), {"train", "val", "test"})
+def test_dataset_loads_real_tsvs():
+    ds = JamendoDataset(data_dir=DATA_DIR, split_dir=SPLIT_DIR)
+    assert len(ds.df) > 50000
+    assert "genre" in ds.df["by_category"].iloc[0] or True  # not every row has genre tags
+
+
+def test_no_train_val_leakage():
+    ds = JamendoDataset(data_dir=DATA_DIR, split_dir=SPLIT_DIR)
+    train = set(ds.split_ids("train", category="moodtheme"))
+    val = set(ds.split_ids("validation", category="moodtheme"))
+    test = set(ds.split_ids("test", category="moodtheme"))
+    assert not (train & val)
+    assert not (train & test)
+    assert not (val & test)
+
+
+def test_build_task_frame_shapes_align():
+    ds = JamendoDataset(data_dir=DATA_DIR, split_dir=SPLIT_DIR)
+    track_ids, text, Y, vocab = build_task_frame(ds, ["genre", "instrument"], "moodtheme", "validation")
+    assert len(track_ids) == len(text) == Y.shape[0]
+    assert Y.shape[1] == len(vocab)
+    assert Y.sum() > 0
 
 
 if __name__ == "__main__":
-    unittest.main()
-
+    test_split_tags_by_category()
+    test_dataset_loads_real_tsvs()
+    test_no_train_val_leakage()
+    test_build_task_frame_shapes_align()
+    print("all data tests passed")

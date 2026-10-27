@@ -1,0 +1,26 @@
+data:
+  dataset: lp_musiccaps       # lp_musiccaps (recommended, real captions) | mtg_jamendo (legacy)
+  lp_musiccaps_dir: data/lp_musiccaps
+  text_field: caption_writing  # caption_writing | caption_summary | caption_paraphrase (never caption_attribute_prediction)
+  tag_field: tag_top50         # tag_top50 | tag_top188
+  similarity_threshold: 0.85
+  node_feature_type: mfcc_chroma
+  n_mfcc: 20
+
+bert:
+  model_name: distilbert-base-uncased
+  max_length: 64
+
+gnn:
+  in_dim: 32
+  conv_type: sage
+  hidden_dim: 128
+  out_dim: 256
+  num_layers: 3
+
+train:
+  batch_size: 32
+  epochs: 20
+  lr: 0.0002
+  bert_lr: 0.00002
+  device: cuda

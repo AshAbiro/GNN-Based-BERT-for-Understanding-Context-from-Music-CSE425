@@ -1,110 +1,104 @@
-# GNN-Based BERT for Understanding Context from Music (CSE425)
+# gnn-bert-music-context
 
-Neural Networks course project combining DistilBERT, GraphSAGE, multimodal fusion,
-and contrastive audio-caption retrieval on a MusicCaps subset.
+CSE425/EEE474/CSE715 Neural Networks final project: GNN--BERT fusion for
+music context understanding. Built against **LP-MusicCaps-MTT** (real
+captions over MagnaTagATune audio) -- see `report/DECISIONS.md` for the
+verified distinction between full-split baselines and neural pilot runs.
 
-- [Current project report (PDF)](report/GNN_Based_BERT_for_Understanding_Context_from_Music.pdf)
-- [Report sources and provenance notes](report/README.md)
-- [Experimental results](RESULTS.md)
-- [Saved evaluation artifacts](artifacts/)
+## tl;dr status
 
-The prepared dataset contains 760 usable examples, 124 tags, and a
-532/114/114 train/validation/test split. Early concatenation achieved test
-Macro-/Micro-F1 of 0.1770/0.3361 in the four-epoch fusion ablation. The separate
-eight-epoch DistilBERT classifier achieved 0.1622/0.3392. These are single-seed
-results with different cross-task training budgets.
+| Layer | Status |
+|---|---|
+| `src/captions_data.py` (parse captions/tags/paths) | **real, tested** (`tests/test_captions_data.py`) |
+| `src/graph_builder.py` / `audio_features.py` (graph construction logic) | **real, tested** on synthetic tensors AND a genuine audio fixture (`tests/test_graph_builder.py`, `tests/test_audio_pipeline_synthetic.py`) |
+| `src/baselines.py` B1 majority-class / random | **real numbers**, run on the actual validation split (`results/metrics.json`) |
+| `src/graph_dataset.py`, `bert_encoder.py`, `gnn_model.py`, `fusion_model.py`, `contrastive.py` | **implemented and tested**: direct-CLS BERT head, GraphSAGE/GAT, cross-attention and early-concat fusion, symmetric InfoNCE with learnable temperature |
+| `src/train.py --task {1,2,3,4}` | **complete runnable workflows** with checkpoints, learning curves, Task-1 attention cases, Task-2 CNN comparison, Task-3 ablations, and Task-4 bidirectional retrieval |
+| `report/final_report.tex` | **compiled** to `final_report.pdf` with dataset statistics, pilot results, curves, attention cases, ablations, and limitations |
 
-This package implements four experiments over the local MusicCaps subset:
-
-1. BERT `[CLS]` multi-label classification with BCE loss, Macro/Micro-F1 curves,
-   and five last-layer attention visualizations.
-2. GraphSAGE over temporal MFCC/chroma music graphs, compared with a 2D mel-CNN.
-3. GNN-to-BERT cross-attention fusion with BERT-only, GNN-only, and early-fusion
-   ablations. Optional valence/arousal regression is enabled when target columns exist.
-4. Symmetric InfoNCE alignment of graph and caption embeddings, evaluated with
-   bidirectional R@1, R@5, and R@10.
-
-The CSV's obsolete Colab paths are deliberately ignored; audio is resolved as
-`audio_clips/<ytid>.wav`. All tasks use the same persisted stratified split.
+30/30 tests passing (`pytest tests/`). See `report/DECISIONS.md` Section 5
+for exactly what's real vs. mocked and why.
 
 ## Setup
 
-Use Python 3.11–3.14 with package versions satisfying `pyproject.toml`.
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+```bash
+pip install -r requirements.txt
 ```
 
-For CUDA, install the correct PyTorch build for the machine first, then install this
-project. PyTorch Geometric wheels must match that PyTorch/CUDA combination.
+## Data
 
-## Prepare the shared experiment data
+Training datasets, downloaded audio, processed features, and model checkpoints
+are excluded from this repository. Obtain the LP-MusicCaps-MTT metadata
+(captions, MagnaTagATune tags, and paths) separately and place it under
+`data/lp_musiccaps/`; see the [dataset card](data/lp_musiccaps/README.md) for
+the upstream source. The experiment files and split-generation details are
+documented in `report/DECISIONS.md`.
 
-Obtain the MusicCaps metadata and corresponding audio separately. Place the input
-table at `musiccaps_with_audio_paths.csv` and WAV files at `audio_clips/<ytid>.wav`,
-or supply `--csv` and `--audio-dir` explicitly. Audio, raw metadata, caches, and
-model checkpoints are not included in this repository.
+To download the audio needed for Tasks 2-4:
 
-The original prepared split is recorded in
-[`artifacts/data/split_assignments.csv`](artifacts/data/split_assignments.csv),
-with the vocabulary and split settings alongside it. These small files record
-the experiment; rerun preparation with the same source subset to generate the
-local `dataset.csv` consumed by the training scripts.
-
-```powershell
-python scripts/prepare_data.py
+```bash
+bash scripts/download_audio.sh          # real MagnaTagATune URLs, ~3GB, needs internet
 ```
 
-Defaults use AudioSet IDs from `audioset_positive_labels`, retaining tags appearing
-at least five times. Use `--target-source aspects` only if caption-derived proxy tags
-are intended; doing so makes text-to-tag prediction partially tautological.
+An older MTG-Jamendo-based path (`src/data.py`) is also included and tested,
+kept as a documented secondary option -- see `report/DECISIONS.md` Section 4
+for why it's not primary. Its metadata and split files are not included.
 
-## Run tasks
+## Run
 
-```powershell
-# Task 1
-python scripts/train_bert.py --model-name distilbert-base-uncased --epochs 8
-
-# Task 2: GraphSAGE and mel-CNN baseline
-python scripts/train_gnn.py --epochs 30
-
-# Task 3: all four ablations
-python scripts/train_fusion.py --epochs 4 --variants fusion bert gnn early
-
-# Task 4
-python scripts/train_contrastive.py --epochs 20
+```bash
+python src/train.py --task 1 --config config.yaml # BERT + curves + 5 attention examples
+bash scripts/download_audio.sh                    # prerequisite for Tasks 2-4 (~3 GB)
+python src/train.py --task 2 --config config.yaml # GraphSAGE/GAT versus 2D CNN
+python src/train.py --task 3 --config config.yaml # BERT/GNN/early-concat/cross-attention ablation
+python src/train.py --task 3 --emotion            # uses valence/arousal only when those columns exist
+python src/train.py --task 4 --config config.yaml # InfoNCE + test R@1/R@5/R@10 both directions
+python -m pytest -q                               # 30 tests
 ```
 
-Use `--help` on each command for batch sizes, learning rates, cache locations, and
-other settings. `--limit-per-split` is available for fast integration checks and must
-not be used for reported experiments. The graph/fusion tasks cache extracted graph
-features under `cache/`.
+## Report
 
-## Outputs
+```bash
+cd report && pdflatex final_report.tex && bibtex final_report && pdflatex final_report.tex && pdflatex final_report.tex
+```
+Already compiled: `report/final_report.pdf`.
 
-Each run creates a timestamp-free, task-specific directory under `artifacts/` with:
+## Repo layout
 
-- model checkpoint(s);
-- epoch metrics in CSV;
-- Macro-F1 and Micro-F1 learning-curve PNGs;
-- configuration and vocabulary metadata;
-- attention plots and sample prediction JSON for Task 1;
-- ablation comparison CSV for Task 3;
-- bidirectional retrieval metrics for Task 4.
+```
+gnn-bert-music-context/
+  data/                     # local datasets and audio; excluded from Git
+  src/
+    config.py                # central config (dataclasses) + config.yaml loader
+    captions_data.py          # PRIMARY: LP-MusicCaps-MTT loader (real, tested)
+    data.py                    # legacy: MTG-Jamendo loader (real, tested)
+    audio_features.py          # librosa mel/MFCC/chroma segmentation
+    graph_builder.py            # chord-transition + segment-similarity graphs (real, tested)
+    graph_dataset.py             # audio -> torch_geometric.data.Data glue (Tasks 2-4)
+    bert_encoder.py               # Task 1 BERT tag classifier
+    gnn_model.py                   # Task 2 GraphSAGE/GAT encoder
+    fusion_model.py                 # Task 3 cross-attention fusion
+    contrastive.py                   # Task 4 InfoNCE dual encoder
+    baselines.py                      # B1-B4 baselines
+    evaluate.py                        # macro/micro F1, mean AP, R@k, emotion MAE/R2
+    train.py                            # CLI: --task {1,2,3,4}
+    utils.py
+  scripts/
+    download_audio.sh                    # real MagnaTagATune URLs (see DECISIONS.md)
+    mtgjamendo_scripts/                   # upstream MTG-Jamendo repo scripts (legacy path)
+  tests/                                   # 30 passing model/data/audio/integration tests
+  results/
+    *.json, *.png                           # metrics, histories, and figures
+    *.pt                                    # local checkpoints; excluded from Git
+  report/
+    final_report.tex, final_report.pdf, neurips_2026.sty, references.bib
+    DECISIONS.md                            # what's real vs. simulated, and why -- read this first
+  config.yaml
+  requirements.txt
+```
 
-## Important experimental notes
+## Read this first if something looks off
 
-- The dataset has 761 examples, 229 raw AudioSet labels, and substantial imbalance.
-  Report both Macro-F1 and Micro-F1 and preserve the generated split manifest.
-- The included deterministic iterative multilabel splitter attempts to preserve rare
-  label proportions while maintaining exact train/validation/test sizes.
-- Five clips are mono and the remainder stereo; sample rates are 44.1 or 48 kHz.
-  Audio loading always converts to mono, resamples, and pads/crops to a fixed length.
-- The current CSV has no DEAM valence/arousal values. Task 3 therefore optimizes tag
-  loss only and records the auxiliary losses as unavailable. Add numeric `valence`
-  and `arousal` columns to enable the full objective.
-- Attention weights are diagnostic, not guaranteed causal explanations.
-- Audio licensing/provenance must be reviewed before redistributing the WAV files.
+`report/DECISIONS.md` documents the dataset choice, the exact pilot sizes,
+what was executed with real pretrained weights/audio, and why pilot metrics
+must not be presented as full-corpus benchmark results.

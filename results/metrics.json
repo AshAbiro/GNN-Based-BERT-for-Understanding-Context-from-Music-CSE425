@@ -1,0 +1,99 @@
+{
+  "dataset": "LP-MusicCaps-MTT (MagnaTagATune captions), tag_top50 target",
+  "num_labels": 50,
+  "result_status": {
+    "baselines": "full validation split",
+    "tasks_1_to_4": "real-data pilot runs; not full-corpus benchmark results",
+    "warning": "Do not report pilot metrics as final model performance. Rerun without --max-audio-samples for full-corpus results."
+  },
+  "full_split_baselines": {
+    "train_size": 15247,
+    "validation_size": 1529,
+    "majority_class": {
+      "macro_f1": 0.0,
+      "micro_f1": 0.0,
+      "mean_average_precision": 0.06616088947024198
+    },
+    "random_seed_0": {
+      "macro_f1": 0.1079759349273142,
+      "micro_f1": 0.11580941818013771,
+      "mean_average_precision": 0.0687410178488696
+    }
+  },
+  "pilot_results": {
+    "task1_bert_captions_to_tags": {
+      "model": "distilbert-base-uncased",
+      "train_size": 256,
+      "validation_size": 256,
+      "test_size": 256,
+      "epochs": 2,
+      "best_validation": {
+        "epoch": 1,
+        "macro_f1": 0.011152248961825185,
+        "micro_f1": 0.04783808647654094,
+        "mean_average_precision": 0.10018371191230897
+      },
+      "final_test": {
+        "macro_f1": 0.0,
+        "micro_f1": 0.0,
+        "mean_average_precision": 0.10860851498299713
+      }
+    },
+    "task2_audio_tagging": {
+      "train_size": 12,
+      "validation_size": 12,
+      "epochs": 1,
+      "graphsage": {
+        "macro_f1": 0.05490842490842491,
+        "micro_f1": 0.0989010989010989,
+        "mean_average_precision": 0.30816732136176583
+      },
+      "2d_cnn": {
+        "macro_f1": 0.02399267399267399,
+        "micro_f1": 0.05653710247349823,
+        "mean_average_precision": 0.3491011303511303
+      }
+    },
+    "task3_fusion_ablation": {
+      "train_size": 12,
+      "validation_size": 12,
+      "epochs": 1,
+      "bert_only": {
+        "macro_f1": 0.0192014652014652,
+        "micro_f1": 0.057692307692307696,
+        "mean_average_precision": 0.27552158489658485
+      },
+      "gnn_only": {
+        "macro_f1": 0.03630769230769231,
+        "micro_f1": 0.1262135922330097,
+        "mean_average_precision": 0.2608154962321629
+      },
+      "early_concat": {
+        "macro_f1": 0.03802197802197802,
+        "micro_f1": 0.12017167381974249,
+        "mean_average_precision": 0.2615299823633157
+      },
+      "cross_attention": {
+        "macro_f1": 0.023736263736263738,
+        "micro_f1": 0.06557377049180328,
+        "mean_average_precision": 0.27448793490460155
+      }
+    },
+    "task4_contrastive_retrieval": {
+      "train_size": 12,
+      "test_size": 12,
+      "epochs": 1,
+      "final_temperature": 0.07001400738954544,
+      "audio_to_caption": {
+        "recall_at_1": 0.0833333358168602,
+        "recall_at_5": 0.4166666567325592,
+        "recall_at_10": 0.8333333134651184
+      },
+      "caption_to_audio": {
+        "recall_at_1": 0.0833333358168602,
+        "recall_at_5": 0.4166666567325592,
+        "recall_at_10": 0.8333333134651184
+      }
+    }
+  }
+}

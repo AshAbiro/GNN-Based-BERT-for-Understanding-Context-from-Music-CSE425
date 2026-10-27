@@ -1,0 +1,8 @@
+{
+  "epoch": 1,
+  "train_loss": 0.37244029715657234,
+  "macro_f1": 0.0,
+  "micro_f1": 0.0,
+  "mean_average_precision": 0.10860851498299713,
+  "mean_auc_pr": 0.10860851498299713
+}
